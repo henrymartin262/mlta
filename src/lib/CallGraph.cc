@@ -39,6 +39,83 @@ using namespace llvm;
 //
 // Implementation
 //
+// int CSIdx = 0;
+// void CallGraphPass::PrintResults(CallInst *CI, FuncSet FS) {
+	
+// 	// Print Call site index
+// 	// CSIdx++;
+// 	// errs() << CSIdx << " ";
+// 	errs() << "Call Site: ";
+// 	CI -> getDebugLoc().print(errs());
+// 	errs() << "\n";
+// 	// errs() << "Call site type: " << MLTypeName << "\n";
+// 	errs()<<"\n\t Indirect-call targets: ("<<FS.size()<<")\n";
+// 	if (FS.empty()){
+// 		errs() << "No target." << "\n";
+// 	}
+// 	else {
+// 		vector<std::string> FuncNameVec;
+// 		while(!FS.empty()){
+// 			llvm::Function *CurFunc = *FS.begin();
+// 			FuncNameVec.push_back(CurFunc->getName().str());
+// 			FS.erase(CurFunc);
+// 		}
+// 		std::sort(FuncNameVec.begin(), FuncNameVec.end());
+// 		for (std::string s:FuncNameVec){
+// 			errs() << "\t" << s << "\n";
+// 		}
+// 	}
+// 	errs() << "\n";
+// 	errs() << "\n";
+	
+// 	return;
+// }
+
+void CallGraphPass::PrintResults(CallInst *CI, FuncSet FS) {
+	// Print Call site index
+	errs() << "Call Site: ";
+	CI->getDebugLoc().print(errs());
+	errs() << "\n";
+
+	errs() << "\n\t Indirect-call targets: (" << FS.size() << ")\n";
+	if (FS.empty()) {
+		errs() << "No target." << "\n";
+	} else {
+		vector<std::string> FuncNameVec;
+		std::map<std::string, Function*> NameToFunc;
+
+		while (!FS.empty()) {
+			llvm::Function *CurFunc = *FS.begin();
+			std::string Name = CurFunc->getName().str();
+			FuncNameVec.push_back(Name);
+			NameToFunc[Name] = CurFunc;
+			FS.erase(CurFunc);
+		}
+
+		std::sort(FuncNameVec.begin(), FuncNameVec.end());
+		for (const std::string& s : FuncNameVec) {
+			llvm::Function *F = NameToFunc[s];
+			errs() << "\t" << s << "\t";
+
+			// ------- 集成源码位置信息 -------
+			if (DISubprogram *SP = F->getSubprogram()) {
+				std::string FN = SP->getFilename().str();
+				std::string line = getSourceLine(FN, SP->getLine());
+				while (!line.empty() && (line[0] == ' ' || line[0] == '\t'))
+					line.erase(line.begin());
+
+				errs() << FN << ": +" << SP->getLine();
+				errs() << line;
+			} else {
+				errs() << " (DebugInfo Missing) ";
+			}
+			// --------------------------------
+			errs() << "\n";
+		}
+	}
+	errs() << "\n\n";
+}
+
 
 void CallGraphPass::doMLTA(Function *F) {
 
@@ -142,6 +219,10 @@ void CallGraphPass::doMLTA(Function *F) {
 					}
 #ifdef PRINT_ICALL_TARGET
 					printTargets(*FS, CI);
+#endif
+
+#ifdef PRINT_HENRY_TARGET
+					PrintResults(CI, *FS);
 #endif
 				}
 				}

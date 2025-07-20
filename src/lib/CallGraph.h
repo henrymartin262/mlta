@@ -27,6 +27,8 @@ class CallGraphPass :
 		//
 		void doMLTA(Function *F);
 
+		// add new func
+		void PrintResults(CallInst *CI, FuncSet FS);
 
 	public:
 		static int AnalysisPhase;

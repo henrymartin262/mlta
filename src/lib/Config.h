@@ -27,9 +27,11 @@ extern int ENABLE_MLTA;
 #define MAP_CALLER_TO_CALLEE 1
 #define UNROLL_LOOP_ONCE 1
 #define MAP_DECLARATION_FUNCTION
-#define PRINT_ICALL_TARGET
+// #define PRINT_ICALL_TARGET
+#define PRINT_HENRY_TARGET
+
 // Path to source code
-#define SOURCE_CODE_PATH "/home/kjlu/projects/kernels/linux-5.1"
+#define SOURCE_CODE_PATH "/root/henry/kernel/linux-6.5"
 //#define PRINT_SOURCE_LINE
 //#define MLTA_FIELD_INSENSITIVE
 
