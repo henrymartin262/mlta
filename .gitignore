@@ -5,3 +5,4 @@ tags
 llvm-project
 *.swp
 llvm-project-16
+.git.bak
